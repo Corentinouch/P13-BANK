@@ -1,99 +1,4 @@
-/*import React, { useState } from 'react';
-import {useNavigate} from "react-router-dom";
-
-
-function Login() {
-    const history = useNavigate();
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        rememberMe: false,
-    });
-    const [error, setError] = useState('');
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleCheckboxChange = (e) => {
-        setFormData({ ...formData, rememberMe: e.target.checked });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch("http://localhost:3001/api/v1/user/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: formData.username,
-                    password: formData.password,
-                }),
-            });
-    
-            if (!response.ok) {
-                throw new Error("Erreur lors de la requête");
-            }
-    
-            const data = await response.json();
-            localStorage.setItem('token', data.body.token);
-            history("/profile", { replace: true });
-        } catch (error) {
-            console.error("Erreur lors de la soumission du formulaire:", error.message);
-        }
-    };
-    
-
-    return (
-        
-        <main className="main bg-dark">
-            <section className="sign-in-content">
-                <i className="fa fa-user-circle sign-in-icon"></i>
-                <h1>Sign In</h1>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-wrapper">
-                        <label htmlFor="username">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="input-wrapper">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="input-remember">
-                        <input
-                            type="checkbox"
-                            id="remember-me"
-                            name="rememberMe"
-                            checked={formData.rememberMe}
-                            onChange={handleCheckboxChange}
-                        />
-                        <label htmlFor="remember-me">Remember me</label>
-                    </div>
-                    <button type="submit" className="sign-in-button">Sign In</button>
-                    {error && <p className="error-message">{error}</p>}
-                </form>
-            </section>
-        </main>
-    );
-}
-
-export default Login;*/
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { setLoginForm, clearLoginForm } from '../reducers/loginFormSlice';
@@ -101,8 +6,16 @@ import { setLoginForm, clearLoginForm } from '../reducers/loginFormSlice';
 function Login() {
   const history = useNavigate();
   const dispatch = useDispatch();
-  const formData = useSelector((state) => state.loginForm); // Access formData from Redux state
+  const formData = useSelector((state) => state.loginForm);
   const [error, setError] = React.useState('');
+
+  // Retrieve email from localStorage when the component mounts
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    if (savedUsername) {
+      dispatch(setLoginForm({ ...formData, username: savedUsername, rememberMe: true }));
+    }
+  }, [dispatch]);
 
   const handleChange = (e) => {
     dispatch(setLoginForm({ ...formData, [e.target.name]: e.target.value }));
@@ -132,7 +45,15 @@ function Login() {
 
       const data = await response.json();
       localStorage.setItem('token', data.body.token);
-      dispatch(clearLoginForm()); // Clear the form after successful login
+
+      // Save the username in localStorage if "Remember me" is checked
+      if (formData.rememberMe) {
+        localStorage.setItem('rememberedUsername', formData.username);
+      } else {
+        localStorage.removeItem('rememberedUsername');
+      }
+
+      dispatch(clearLoginForm());
       history("/profile", { replace: true });
     } catch (error) {
       console.error("Erreur lors de la soumission du formulaire:", error.message);
@@ -185,3 +106,4 @@ function Login() {
 }
 
 export default Login;
+    
