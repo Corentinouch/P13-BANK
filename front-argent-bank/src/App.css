@@ -96,7 +96,7 @@ body {
   color: #42b983;
 }
 
-.main-nav-item {
+.main-nav-item, .main-nav-item-other {
   text-decoration: none;
   margin-right: 0.5rem;
 }
@@ -271,7 +271,6 @@ body {
   padding: 1.5rem;
   box-sizing: border-box;
   text-align: left;
-  margin-bottom: 2rem;
 }
 
 .account-amount {

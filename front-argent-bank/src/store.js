@@ -1,10 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './reducers/authReducer'; // Importez votre reducer
+import editModeReducer from './reducers/editModeSlice';
+import userInfoReducer from './reducers/userInfoSlice';
+import editedUserInfoReducer from './reducers/editedUserInfoSlice';
+import loginFormReducer from './reducers/loginFormSlice'; // Import the loginForm reducer
 
 const store = configureStore({
-    reducer: {
-        auth: authReducer,
-    },
+  reducer: {
+    editMode: editModeReducer,
+    userInfo: userInfoReducer,
+    editedUserInfo: editedUserInfoReducer,
+    loginForm: loginFormReducer, // Add the loginForm reducer
+  },
 });
 
 export default store;
