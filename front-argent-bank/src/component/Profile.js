@@ -20,6 +20,8 @@ function Profile() {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
+      const rememberMe = JSON.parse(localStorage.getItem('rememberMe'));
+
       if (!token) {
         history('/login', { replace: true });
         return;
@@ -39,15 +41,21 @@ function Profile() {
 
       const userData = await response.json();
       dispatch(setUserInfo(userData.body));
+      if (rememberMe === false) {
+        localStorage.clear()
+      }
     } catch (error) {
       console.error('Error fetching user profile:', error.message);
+      if (error.message === 'Failed to fetch user profile') {
+        history('/login', { replace: true });
+      }
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     dispatch(clearUserInfo());
-    dispatch(clearEditedUserInfo()); // Clear editedUserInfo on logout
+    dispatch(clearEditedUserInfo());
     history("/login");
   };
 
@@ -89,6 +97,8 @@ function Profile() {
     }
   };
 
+  const token = localStorage.getItem('token'); // Token for conditional rendering
+
   return (
     <span>
       <nav className="main-nav">
@@ -109,18 +119,36 @@ function Profile() {
       </nav>
       <main className="main bg-dark">
         <div className="header">
-          {editMode ? (
-            <div>
-              <label htmlFor="firstName">First Name:</label>
-              <input type="text" id="firstName" name="firstName" value={editedUserInfo.firstName} onChange={handleInputChange} />
-              <label htmlFor="lastName">Last Name:</label>
-              <input type="text" id="lastName" name="lastName" value={editedUserInfo.lastName} onChange={handleInputChange} />
-              <button onClick={handleSaveChanges}>Save Changes</button>
-            </div>
+          {token ? (
+            editMode ? (
+              <div>
+                <label htmlFor="firstName">First Name:</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={editedUserInfo.firstName}
+                  onChange={handleInputChange}
+                />
+                <label htmlFor="lastName">Last Name:</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={editedUserInfo.lastName}
+                  onChange={handleInputChange}
+                />
+                <button onClick={handleSaveChanges}>Save Changes</button>
+              </div>
+            ) : (
+              <div>
+                <h1>Welcome back<br />{userInfo.firstName} {userInfo.lastName}!</h1>
+                <button className="edit-button" onClick={handleEditClick}>Edit Name</button>
+              </div>
+            )
           ) : (
             <div>
               <h1>Welcome back<br />{userInfo.firstName} {userInfo.lastName}!</h1>
-              <button className="edit-button" onClick={handleEditClick}>Edit Name</button>
             </div>
           )}
         </div>

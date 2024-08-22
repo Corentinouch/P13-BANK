@@ -9,14 +9,6 @@ function Login() {
   const formData = useSelector((state) => state.loginForm);
   const [error, setError] = React.useState('');
 
-  // Retrieve email from localStorage when the component mounts
-  useEffect(() => {
-    const savedUsername = localStorage.getItem('rememberedUsername');
-    if (savedUsername) {
-      dispatch(setLoginForm({ ...formData, username: savedUsername, rememberMe: true }));
-    }
-  }, [dispatch]);
-
   const handleChange = (e) => {
     dispatch(setLoginForm({ ...formData, [e.target.name]: e.target.value }));
   };
@@ -38,21 +30,15 @@ function Login() {
           password: formData.password,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error("Erreur lors de la requête");
       }
-
+  
       const data = await response.json();
       localStorage.setItem('token', data.body.token);
-
-      // Save the username in localStorage if "Remember me" is checked
-      if (formData.rememberMe) {
-        localStorage.setItem('rememberedUsername', formData.username);
-      } else {
-        localStorage.removeItem('rememberedUsername');
-      }
-
+      localStorage.setItem('rememberMe', JSON.stringify(formData.rememberMe));
+  
       dispatch(clearLoginForm());
       history("/profile", { replace: true });
     } catch (error) {
@@ -60,6 +46,7 @@ function Login() {
       setError("Invalid username or password");
     }
   };
+  
 
   return (
     <main className="main bg-dark">
@@ -106,4 +93,3 @@ function Login() {
 }
 
 export default Login;
-    
